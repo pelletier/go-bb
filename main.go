@@ -117,13 +117,13 @@ func main() {
 		die("Could not compute relative path from %s to %s", cwd, bborigPath)
 	}
 
-	bborigModule, err := buildCtx.Import(bborigModulePath, cwd, 0)
-	if err != nil {
-		die("Copied module is invalid: %s", err)
-	}
+	// bborigModule, err := buildCtx.Import(bborigModulePath, cwd, 0)
+	// if err != nil {
+	// 	die("Copied module is invalid: %s", err)
+	// }
 
 	fmt.Println("Rewriting benchmark function")
-	err = rewriteBenchFuncInPlace(bborigModule, benchFuncLoc)
+	err = rewriteBenchFuncInPlace(bborigModulePath, benchFuncLoc)
 	if err != nil {
 		die("Could not rewrite benchmark function: %s", err)
 	}
@@ -227,8 +227,8 @@ func main() {
 // 1. Find the function from loc at pkg.
 // 2. Rewrite it to remove the testing.B dependency.
 // 3. Overwrite the source file on disk.
-func rewriteBenchFuncInPlace(pkg *build.Package, loc fnLoc) error {
-	filePath := path.Join(pkg.Dir, loc.file)
+func rewriteBenchFuncInPlace(pkgDir string, loc fnLoc) error {
+	filePath := path.Join(pkgDir, loc.file)
 
 	fset := token.NewFileSet()
 	fileAst, err := parser.ParseFile(fset, filePath, nil, 0)
@@ -362,12 +362,14 @@ func removeReferencesToIdentifier(fset *token.FileSet, id *ast.Ident, root ast.N
 }
 
 func copyModuleToTmp(fromPath, toPath string) error {
+	fmt.Println("Copying from", fromPath, "->", toPath)
 	files, err := os.ReadDir(fromPath)
 	if err != nil {
 		return err
 	}
+
 	for _, x := range files {
-		if x.IsDir() {
+		if x.IsDir() || !strings.HasSuffix(x.Name(), ".go") {
 			continue
 		}
 		fromFilePath := path.Join(fromPath, x.Name())
@@ -376,6 +378,7 @@ func copyModuleToTmp(fromPath, toPath string) error {
 		if err != nil {
 			return fmt.Errorf("error copying %s to %s: %w", fromFilePath, toFilePath, err)
 		}
+		fmt.Println("Copied", fromFilePath, "->", toFilePath)
 	}
 	return nil
 }
