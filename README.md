@@ -31,6 +31,16 @@ Usage of go-bb:
 
 ```
 $ go-bb -p ./example -n Me
+Found matching function: BenchmarkMe (example_test.go)
+Temporary source directory: /tmp/go-bb-2656927681
+Copying from /home/thomas/src/github.com/pelletier/go-bb/example -> /tmp/go-bb-2656927681/bborig
+Copied /home/thomas/src/github.com/pelletier/go-bb/example/example_test.go -> /tmp/go-bb-2656927681/bborig/example_test.go
+Rewriting benchmark function
+Renaming test files
+Initializing module example.com/go-bb-2656927681
+Running tidy
+Compiling
+Benchmark binary ready at /home/thomas/src/github.com/pelletier/go-bb/benchmark.binary
 $ perf stat -- ./benchmark.binary
 ```
 
